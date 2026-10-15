@@ -1,0 +1,233 @@
+/* Paleta de marca Havana (sacada del logo) */
+:root {
+	--color-primary: #2b2d52;   /* azul marino del texto del logo */
+	--color-secondary: #7e67e5; /* violeta de la base de la flor */
+	--gradient-accent: linear-gradient(180deg, #f0aebb 0%, #d97fd0 50%, #7e67e5 100%); /* degradado de la flor */
+	--gradient-accent-x: linear-gradient(90deg, #f0aebb 0%, #d97fd0 45%, #7e67e5 100%);
+
+	/* Superficies (rosa crema inspirado en el fondo del logo) */
+	--bg: #fbf4f8;
+	--bg-band: #f6e7f0;
+	--paper: #f0d9e7;           /* papel de patrón */
+	--ink: var(--color-primary);
+	--ink-soft: #5d5f7e;
+	--cream: #fbf4f8;
+	--line: rgba(43, 45, 82, 0.2);
+	--dot: #e6c3d8;
+
+	--font-serif: 'Fraunces', Georgia, serif;
+	--font-sans: 'Figtree', system-ui, sans-serif;
+	--font-mono: 'Courier Prime', 'Courier New', monospace;
+
+	--wrap: 78rem;
+	--gutter: clamp(1rem, 4vw, 3.75rem);
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 6rem;
+}
+
+/* Lenis (scroll suave con inercia): sustituye al scroll-behavior nativo */
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+	overflow: hidden;
+}
+
+body {
+	margin: 0;
+	color: var(--ink);
+	font-family: var(--font-sans);
+	font-size: 1.0625rem;
+	line-height: 1.7;
+	background-color: var(--bg);
+	/* Cruces cada 162px sobre una retícula de puntos de 27px */
+	background-image:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='162' height='162'%3E%3Cpath d='M81 74v14M74 81h14' stroke='%23dcaac8' stroke-width='1.2'/%3E%3C/svg%3E"),
+		radial-gradient(var(--dot) 1px, transparent 1.5px);
+	background-size: 162px 162px, 27px 27px;
+	background-position: 0 0, -13.5px -13.5px;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+h1,
+h2,
+h3,
+p {
+	margin: 0;
+}
+
+a {
+	color: inherit;
+}
+
+.wrap {
+	max-width: var(--wrap);
+	margin: 0 auto;
+	padding: 0 var(--gutter);
+}
+
+.section {
+	padding: clamp(5rem, 11vw, 9rem) 0;
+}
+
+.band {
+	position: relative;
+	background: var(--bg-band);
+}
+
+/* costuras que unen las franjas como paneles de tela */
+.band::before,
+.band::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: repeating-linear-gradient(90deg, rgba(126, 103, 229, 0.45) 0 10px, transparent 10px 17px);
+}
+.band::before {
+	top: 10px;
+}
+.band::after {
+	bottom: 10px;
+}
+
+/* aparición al hacer scroll (solo con JS; usa translate para no pisar los rotate) */
+.js [data-reveal] {
+	opacity: 0;
+	translate: 0 28px;
+	transition:
+		opacity 0.8s ease,
+		translate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+	transition-delay: var(--d, 0s);
+}
+.js [data-reveal].is-visible {
+	opacity: 1;
+	translate: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	.js [data-reveal] {
+		opacity: 1;
+		translate: none;
+		transition: none;
+	}
+}
+
+.display {
+	font-family: var(--font-serif);
+	font-weight: 400;
+	line-height: 1.02;
+	letter-spacing: -0.02em;
+	font-variation-settings: 'opsz' 36;
+}
+
+.display em {
+	font-style: italic;
+	font-weight: 400;
+	background: var(--gradient-accent-x);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	padding-right: 0.08em;
+}
+
+.h2 {
+	font-size: clamp(2.6rem, 6vw, 5rem);
+}
+
+.label {
+	font-family: var(--font-mono);
+	font-size: 0.95rem;
+	letter-spacing: 0.04em;
+	color: var(--color-secondary);
+}
+
+.lead {
+	font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+	color: var(--ink);
+}
+
+.muted {
+	color: var(--ink-soft);
+}
+
+.btn {
+	display: inline-block;
+	padding: 1.05rem 1.8rem;
+	background: var(--ink);
+	color: var(--cream);
+	font-weight: 600;
+	text-decoration: none;
+	border: 0;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.btn:hover {
+	background: var(--color-secondary);
+	/* pespunte interior al pasar el cursor */
+	outline: 1.5px dashed currentColor;
+	outline-offset: -6px;
+}
+
+.btn--light {
+	background: var(--cream);
+	color: var(--ink);
+}
+
+.btn--light:hover {
+	background: #fff;
+}
+
+.link-dashed {
+	font-family: var(--font-mono);
+	color: var(--color-secondary);
+	text-decoration: underline dashed;
+	text-underline-offset: 0.35em;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* Texto escrito a mano, como las notas de la hoja de estudios del home.
+   Solo cambia la tipografía: color y tamaño los conserva cada elemento. */
+.hand {
+	font-family: 'Caveat', cursive;
+	font-style: normal;
+	font-weight: 500;
+	letter-spacing: 0;
+	font-variation-settings: normal;
+	/* Caveat es más pequeña que Figtree/Fraunces al mismo font-size:
+	   igualamos la altura de sus minúsculas para que se vea del mismo tamaño */
+	font-size-adjust: 0.5;
+}

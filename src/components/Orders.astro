@@ -1,0 +1,145 @@
+---
+import { orders, testimonial, stats } from '../data/site';
+---
+
+<section class="section">
+	<div class="wrap grid">
+		<div>
+			<h2 class="display h2">Pedidos<br />y tiempos.</h2>
+			<div class="docket" data-reveal>
+				<svg class="pin" viewBox="0 0 40 60" aria-hidden="true">
+					<line x1="20" y1="14" x2="20" y2="58"></line>
+					<circle cx="20" cy="12" r="10"></circle>
+				</svg>
+				<p class="label">Hoja de pedido · referencia</p>
+				<dl>
+					{
+						orders.map((o) => (
+							<div class="row">
+								<dt class="hand">{o.item}</dt>
+								<dd class="display hand">{o.value}</dd>
+							</div>
+						))
+					}
+				</dl>
+			</div>
+			<p class="muted note hand">
+				Los tiempos cuentan desde que apruebas la muestra. Para fechas especiales, escríbenos con tiempo y lo
+				organizamos.
+			</p>
+		</div>
+
+		<div class="side" data-reveal style="--d:0.2s">
+			<blockquote>
+				<p class="display">“{testimonial.quote}”</p>
+				<cite class="label">{testimonial.author}</cite>
+			</blockquote>
+			<ul class="stats">
+				{
+					stats.map((s) => (
+						<li>
+							<span class="display num">{s.value}</span>
+							<span class="muted">{s.label}</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+</section>
+
+<style>
+	.grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 4rem 6rem;
+		align-items: center;
+	}
+	.pin {
+		position: absolute;
+		top: -1.6rem;
+		left: 50%;
+		width: 1.6rem;
+		transform: rotate(18deg);
+	}
+	.pin line {
+		stroke: #9a9cc0;
+		stroke-width: 2;
+	}
+	.pin circle {
+		fill: #d97fd0;
+		stroke: var(--ink);
+		stroke-opacity: 0.3;
+	}
+	.docket {
+		position: relative;
+		margin-top: 3rem;
+		padding: 2.25rem 2.5rem 1.5rem;
+		background: var(--paper);
+		transform: rotate(-1.2deg);
+		box-shadow: 0 30px 40px -28px rgba(43, 45, 82, 0.5);
+		border-top: 2px dashed rgba(43, 45, 82, 0.25);
+	}
+	dl {
+		margin: 1.25rem 0 0;
+	}
+	.row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		padding: 1rem 0;
+		border-bottom: 1px dashed rgba(43, 45, 82, 0.35);
+	}
+	dd {
+		margin: 0;
+		font-size: clamp(1.25rem, 2vw, 1.6rem);
+		text-align: right;
+	}
+	.note {
+		margin-top: 2.5rem;
+		max-width: 34rem;
+		font-size: 0.95rem;
+	}
+	blockquote {
+		margin: 0;
+		display: grid;
+		gap: 2rem;
+	}
+	blockquote p {
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+		line-height: 1.25;
+	}
+	cite {
+		font-style: normal;
+	}
+	.stats {
+		list-style: none;
+		margin: 3rem 0 0;
+		padding: 2.5rem 0 0;
+		border-top: 1px dashed var(--line);
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.5rem;
+	}
+	.stats li {
+		display: grid;
+		gap: 0.5rem;
+		font-size: 0.95rem;
+		line-height: 1.5;
+	}
+	.num {
+		font-size: clamp(3rem, 5vw, 4.5rem);
+		background: var(--gradient-accent);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+	@media (max-width: 900px) {
+		.grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

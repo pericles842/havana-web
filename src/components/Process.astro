@@ -1,0 +1,88 @@
+---
+import PatternPiece from './PatternPiece.astro';
+import { steps } from '../data/site';
+---
+
+<section id="proceso" class="section">
+	<div class="wrap">
+		<div class="head" data-reveal>
+			<p class="label">Cómo trabajamos</p>
+			<h2 class="display h2">Cuatro pasos, de la idea a la entrega.</h2>
+			<p class="lead muted hand">
+				Cada pedido empieza como un patrón cortado para ti. Lo probamos en una muestra, lo ajustamos y solo entonces
+				producimos. Así cada pieza del lote sale igual que la primera.
+			</p>
+		</div>
+
+		<ol class="steps">
+			{
+				steps.map((s, i) => (
+					<li class="step" data-reveal style={`--d:${i * 0.15}s`}>
+						<PatternPiece d={s.d} name={s.piece} id={`p${i}`} />
+						<p class="label">
+							Paso {i + 1} · {s.step}
+						</p>
+						<h3 class="display">{s.title}</h3>
+						<p class="muted">{s.text}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.head {
+		max-width: 52rem;
+		display: grid;
+		gap: 1.5rem;
+		margin-bottom: 5rem;
+	}
+	.steps {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 3rem 2.5rem;
+	}
+	.step {
+		display: grid;
+		gap: 0.9rem;
+		align-content: start;
+	}
+	.step:nth-child(2) {
+		margin-top: 6rem;
+	}
+	.step:nth-child(3) {
+		margin-top: 3rem;
+	}
+	.step:nth-child(4) {
+		margin-top: 9rem;
+	}
+	.step:nth-child(odd) :global(.piece) {
+		transform: rotate(-3deg);
+	}
+	.step:nth-child(even) :global(.piece) {
+		transform: rotate(2deg);
+	}
+	.step .label {
+		margin-top: 1.5rem;
+	}
+	h3 {
+		font-size: clamp(2rem, 3vw, 2.75rem);
+	}
+	@media (max-width: 1000px) {
+		.steps {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.step:nth-child(n) {
+			margin-top: 0;
+		}
+	}
+	@media (max-width: 560px) {
+		.steps {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

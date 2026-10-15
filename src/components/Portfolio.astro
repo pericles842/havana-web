@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import { portfolio, instagramLink, site } from '../data/site';
+---
+
+<section id="portafolio" class="section band">
+	<div class="wrap">
+		<div class="head" data-reveal>
+			<div>
+				<p class="label hand">Portafolio</p>
+				<h2 class="display h2">Trabajos que ya salieron del taller.</h2>
+			</div>
+			<a class="link-dashed" href={instagramLink} target="_blank" rel="noopener">Más en Instagram @{site.instagram}</a>
+		</div>
+
+		<ul class="gallery">
+			{
+				portfolio.map((p, i) => (
+					<li class:list={['tile', p.size]} data-reveal style={`--d:${(i % 3) * 0.1}s`}>
+						<figure>
+							<div class="photo">
+								<Image src={p.photo} alt={p.alt} width={p.size === 'wide' ? 1200 : 800} />
+							</div>
+							<figcaption class="label">{p.caption}</figcaption>
+						</figure>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.head {
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+		gap: 2rem;
+		flex-wrap: wrap;
+		margin-bottom: 4rem;
+	}
+	.head .h2 {
+		margin-top: 1.25rem;
+		max-width: 44rem;
+	}
+	.gallery {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-auto-rows: 15rem;
+		grid-auto-flow: dense;
+		gap: 1.5rem;
+	}
+	.tile.tall {
+		grid-row: span 2;
+	}
+	.tile.wide {
+		grid-column: span 2;
+	}
+	figure {
+		margin: 0;
+		height: 100%;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr) auto;
+		gap: 0.6rem;
+	}
+	.photo {
+		position: relative;
+		overflow: hidden;
+		background: var(--paper);
+	}
+	.photo :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		filter: saturate(0.9);
+		transition:
+			transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+			filter 0.4s;
+	}
+	/* pespunte que rodea la foto al pasar el cursor */
+	.photo::after {
+		content: '';
+		position: absolute;
+		inset: 12px;
+		border: 2px dashed rgba(255, 255, 255, 0.9);
+		clip-path: inset(0 100% 100% 0);
+		transition: clip-path 0.8s cubic-bezier(0.45, 0, 0.25, 1);
+		pointer-events: none;
+	}
+	.tile:hover .photo :global(img) {
+		transform: scale(1.05);
+		filter: saturate(1.05);
+	}
+	.tile:hover .photo::after {
+		clip-path: inset(0 0 0 0);
+	}
+	figcaption {
+		font-size: 0.85rem;
+	}
+	@media (max-width: 760px) {
+		.gallery {
+			grid-template-columns: 1fr 1fr;
+			grid-auto-rows: 11rem;
+		}
+	}
+</style>

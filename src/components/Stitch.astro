@@ -1,0 +1,75 @@
+---
+// Costura que se "cose" sola cuando entra en pantalla: una aguja recorre el trazo y deja la puntada detrás.
+// La animación la dispara el script de Layout (data-stitch).
+interface Props {
+	tone?: 'dark' | 'light';
+	d?: string;
+	class?: string;
+}
+const {
+	tone = 'dark',
+	d = 'M12 30 C160 4 300 56 450 30 S750 4 900 30 S1130 56 1188 30',
+	class: className,
+} = Astro.props;
+const id = `stitch-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg class:list={['stitch', `stitch--${tone}`, className]} viewBox="0 0 1200 60" data-stitch aria-hidden="true">
+	<defs>
+		<mask id={id} maskUnits="userSpaceOnUse">
+			<path class="mask-path" d={d} pathLength="1" fill="none" stroke="#fff" stroke-width="12" stroke-dasharray="1" stroke-dashoffset="1">
+				<animate attributeName="stroke-dashoffset" from="1" to="0" dur="2.6s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.25 1"></animate>
+			</path>
+		</mask>
+	</defs>
+	<path class="guide" d={d}></path>
+	<path class="thread" d={d} mask={`url(#${id})`}></path>
+	<g class="needle">
+		<path d="M-34 -1.6 L16 -0.6 L26 0 L16 0.6 L-34 1.6 Z"></path>
+		<ellipse cx="-27" cy="0" rx="4" ry="0.8" class="eye"></ellipse>
+		<animateMotion dur="2.6s" begin="indefinite" fill="freeze" rotate="auto" path={d} calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.45 0 0.25 1"></animateMotion>
+	</g>
+</svg>
+
+<style>
+	.stitch {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+	}
+	.guide {
+		fill: none;
+		stroke: var(--color-secondary);
+		stroke-opacity: 0.25;
+		stroke-width: 1.2;
+		stroke-dasharray: 2 6;
+	}
+	.thread {
+		fill: none;
+		stroke: var(--color-secondary);
+		stroke-width: 2.4;
+		stroke-linecap: round;
+		stroke-dasharray: 10 7;
+	}
+	.needle {
+		opacity: 0;
+		fill: var(--ink);
+		transition: opacity 0.3s;
+	}
+	.needle .eye {
+		fill: var(--bg);
+	}
+	.stitch--light .thread {
+		stroke: #c9b9ff;
+	}
+	.stitch--light .guide {
+		stroke: #fbf4f8;
+	}
+	.stitch--light .needle {
+		fill: #fbf4f8;
+	}
+	.stitch--light .needle .eye {
+		fill: var(--color-primary);
+	}
+</style>

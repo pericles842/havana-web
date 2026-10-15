@@ -1,0 +1,274 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { services } from '../data/site';
+
+// versión grande de cada tela para la lupa
+const zooms = await Promise.all(services.map((s) => getImage({ src: s.photo, width: 1800 })));
+---
+
+<section id="servicios" class="section band">
+	<div class="wrap">
+		<div class="head" data-reveal>
+			<div>
+				<h2 class="display h2">Lo que cosemos<br />en el taller.</h2>
+				<p class="lead muted hand">Cuatro servicios para que tu marca, tu equipo o tu prenda se vean como tienen que verse.</p>
+			</div>
+			<a class="link-dashed" href="#portafolio">Ver trabajos</a>
+		</div>
+
+		<ul class="cards">
+			{
+				services.map((s, i) => (
+					<li class="card" data-reveal style={`--d:${i * 0.12}s`}>
+						<div class="photo" data-loupe data-zoom={zooms[i].src}>
+							<Image src={s.photo} alt={s.alt} width={640} />
+							<svg class="loupe-line" aria-hidden="true">
+								<line />
+							</svg>
+							<span class="loupe-ring" aria-hidden="true" />
+							<div class="loupe-panel" aria-hidden="true">
+								<div class="loupe-view" />
+								<span class="loupe-caption">Detalle a 4:1</span>
+							</div>
+						</div>
+						<div class="body">
+							<p class="label">{String(i + 1).padStart(2, '0')}</p>
+							<h3 class="display">{s.title}</h3>
+							<p class="muted">{s.text}</p>
+							<ul class="tags">
+								{s.tags.map((t) => (
+									<li>{t}</li>
+								))}
+							</ul>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<script>
+	// Lupa sobre las telas: el círculo sigue al cursor y el recuadro muestra esa zona ampliada 4 veces.
+	const ZOOM = 4;
+
+	document.querySelectorAll<HTMLElement>('[data-loupe]').forEach((photo) => {
+		const img = photo.querySelector('img');
+		const ring = photo.querySelector<HTMLElement>('.loupe-ring');
+		const panel = photo.querySelector<HTMLElement>('.loupe-panel');
+		const view = photo.querySelector<HTMLElement>('.loupe-view');
+		const line = photo.querySelector('line');
+		if (!img || !ring || !panel || !view || !line) return;
+
+		let loaded = false;
+
+		photo.addEventListener('pointerenter', (e) => {
+			if (e.pointerType !== 'mouse') return;
+			if (!loaded) {
+				view.style.backgroundImage = `url(${photo.dataset.zoom})`;
+				loaded = true;
+			}
+			photo.classList.add('is-zooming');
+		});
+		photo.addEventListener('pointerleave', () => photo.classList.remove('is-zooming'));
+
+		photo.addEventListener('pointermove', (e) => {
+			if (e.pointerType !== 'mouse') return;
+			const box = photo.getBoundingClientRect();
+			const x = e.clientX - box.left;
+			const y = e.clientY - box.top;
+
+			// tamaño y desplazamiento de la imagen con object-fit: cover
+			const nw = img.naturalWidth || box.width;
+			const nh = img.naturalHeight || box.height;
+			const scale = Math.max(box.width / nw, box.height / nh);
+			const dw = nw * scale;
+			const dh = nh * scale;
+			const ox = (box.width - dw) / 2;
+			const oy = (box.height - dh) / 2;
+
+			// el recuadro va del lado contrario al cursor
+			panel.classList.toggle('left', x > box.width / 2);
+
+			const size = view.clientWidth;
+			view.style.backgroundSize = `${dw * ZOOM}px ${dh * ZOOM}px`;
+			view.style.backgroundPosition = `${-((x - ox) * ZOOM - size / 2)}px ${-((y - oy) * ZOOM - size / 2)}px`;
+
+			ring.style.transform = `translate(${x}px, ${y}px)`;
+
+			const p = panel.getBoundingClientRect();
+			const toLeftEdge = !panel.classList.contains('left');
+			const px = (toLeftEdge ? p.left : p.right) - box.left;
+			const py = p.top + p.height / 2 - box.top;
+			const angle = Math.atan2(py - y, px - x);
+			line.setAttribute('x1', String(x + Math.cos(angle) * 14));
+			line.setAttribute('y1', String(y + Math.sin(angle) * 14));
+			line.setAttribute('x2', String(px));
+			line.setAttribute('y2', String(py));
+		});
+	});
+</script>
+
+<style>
+	.head {
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+		gap: 2rem;
+		flex-wrap: wrap;
+		margin-bottom: 4rem;
+	}
+	.head .lead {
+		max-width: 34rem;
+		margin-top: 1.75rem;
+	}
+	.cards {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+		gap: 1.5rem;
+	}
+	.card {
+		position: relative;
+		background: var(--bg);
+		border: 1px solid var(--line);
+		box-shadow: 0 18px 30px -24px rgba(43, 45, 82, 0.45);
+		transition:
+			transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+			box-shadow 0.35s;
+	}
+	/* hilván que aparece al pasar el cursor */
+	.card::after {
+		content: '';
+		position: absolute;
+		inset: 9px;
+		border: 1.5px dashed var(--color-secondary);
+		opacity: 0;
+		clip-path: inset(0 100% 100% 0);
+		transition:
+			clip-path 0.7s cubic-bezier(0.45, 0, 0.25, 1),
+			opacity 0.2s;
+		pointer-events: none;
+	}
+	.card:hover {
+		transform: translateY(-6px) rotate(-0.4deg);
+		box-shadow: 0 28px 40px -26px rgba(43, 45, 82, 0.55);
+	}
+	.card:hover::after {
+		opacity: 1;
+		clip-path: inset(0 0 0 0);
+	}
+	.photo {
+		position: relative;
+		height: 12rem;
+		overflow: hidden;
+	}
+	.photo :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* Lupa: círculo sobre la tela, línea y recuadro con el detalle ampliado */
+	.loupe-ring,
+	.loupe-panel,
+	.loupe-line {
+		position: absolute;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.2s;
+	}
+	.photo.is-zooming .loupe-ring,
+	.photo.is-zooming .loupe-panel,
+	.photo.is-zooming .loupe-line {
+		opacity: 1;
+	}
+	.photo.is-zooming {
+		cursor: none;
+	}
+	.loupe-line {
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+	}
+	.loupe-line line {
+		stroke: var(--cream);
+		stroke-width: 1.4;
+		filter: drop-shadow(0 0 1px rgba(43, 45, 82, 0.7));
+	}
+	.loupe-ring {
+		left: 0;
+		top: 0;
+		width: 28px;
+		height: 28px;
+		margin: -14px 0 0 -14px;
+		border-radius: 50%;
+		border: 1.6px solid var(--cream);
+		box-shadow:
+			0 0 0 1px rgba(43, 45, 82, 0.5),
+			inset 0 0 0 1px rgba(43, 45, 82, 0.35);
+	}
+	.loupe-panel {
+		top: 10px;
+		right: 10px;
+		padding: 0.4rem 0.4rem 0.3rem;
+		background: var(--bg);
+		box-shadow: 0 12px 24px -10px rgba(43, 45, 82, 0.6);
+	}
+	.loupe-panel.left {
+		right: auto;
+		left: 10px;
+	}
+	.loupe-view {
+		width: 112px;
+		height: 112px;
+		background-color: var(--paper);
+		background-repeat: no-repeat;
+		box-shadow: inset 0 0 0 1px rgba(43, 45, 82, 0.4);
+	}
+	/* regla sobre el detalle */
+	.loupe-panel::before {
+		content: '';
+		display: block;
+		height: 9px;
+		margin-bottom: 2px;
+		background:
+			repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 28px) bottom left / 100% 9px no-repeat,
+			repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 7px) bottom left / 100% 4px no-repeat,
+			linear-gradient(var(--ink), var(--ink)) bottom / 100% 1px no-repeat;
+	}
+	.loupe-caption {
+		display: block;
+		margin-top: 0.2rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--ink);
+	}
+	.body {
+		padding: 1.5rem 1.5rem 2rem;
+		display: grid;
+		gap: 0.75rem;
+	}
+	h3 {
+		font-size: 1.85rem;
+		line-height: 1.1;
+	}
+	.tags {
+		list-style: none;
+		padding: 0;
+		margin: 0.5rem 0 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.tags li {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		padding: 0.15rem 0.6rem;
+		border: 1px dashed var(--color-secondary);
+		color: var(--color-secondary);
+	}
+</style>

@@ -1,0 +1,206 @@
+---
+import { site, nav, waLink, instagramLink } from '../data/site';
+import Stitch from './Stitch.astro';
+---
+
+<section id="contacto" class="contact">
+	<div class="wrap">
+		<div class="top">
+			<div>
+				<h2 class="display title">Cuéntanos qué quieres <em>coser.</em></h2>
+				<p class="intro">
+					La cotización no tiene costo. Llena estos datos y te abrimos WhatsApp con el mensaje listo. Si tienes una
+					foto de referencia, envíala en el mismo chat.
+				</p>
+			</div>
+
+			<form class="quote" data-whatsapp={site.whatsapp}>
+				<label>
+					<span class="label">Tipo de prenda</span>
+					<select name="prenda" required>
+						<option value="">Elige una opción</option>
+						<option>Uniformes</option>
+						<option>Ropa de marca</option>
+						<option>Dotación</option>
+						<option>Confección a medida</option>
+						<option>Arreglos y ajustes</option>
+						<option>Otro</option>
+					</select>
+				</label>
+				<label>
+					<span class="label">Cantidad</span>
+					<input type="number" name="cantidad" min="1" placeholder="Ej. 20" required />
+				</label>
+				<label>
+					<span class="label">Fecha deseada</span>
+					<input type="date" name="fecha" />
+				</label>
+				<label class="full">
+					<span class="label">Detalles (opcional)</span>
+					<textarea name="detalles" rows="3" placeholder="Tela, colores, tallas, logo..."></textarea>
+				</label>
+				<button class="btn btn--light full" type="submit">Enviar por WhatsApp</button>
+			</form>
+		</div>
+
+		<Stitch tone="light" class="footer-seam" d="M8 30 H1192" />
+
+		<footer class="footer">
+			<div>
+				<p class="label">Taller</p>
+				{site.address.map((l) => <p>{l}</p>)}
+			</div>
+			<div>
+				<p class="label">Horario</p>
+				{site.hours.map((l) => <p>{l}</p>)}
+			</div>
+			<div>
+				<p class="label">Contacto</p>
+				<p><a href={waLink()} target="_blank" rel="noopener">WhatsApp {site.phone}</a></p>
+				<p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+				<p><a href={instagramLink} target="_blank" rel="noopener">Instagram @{site.instagram}</a></p>
+			</div>
+			<div>
+				<p class="label">Secciones</p>
+				{nav.map((n) => <p><a href={n.href}>{n.label}</a></p>)}
+			</div>
+		</footer>
+
+		<p class="wordmark display" aria-hidden="true">havana</p>
+
+		<div class="legal">
+			<span>© {new Date().getFullYear()} Havana, taller de costura.</span>
+			<span>{site.slogan}.</span>
+		</div>
+	</div>
+</section>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('form.quote');
+	form?.addEventListener('submit', (e) => {
+		e.preventDefault();
+		const data = new FormData(form);
+		const lines = [
+			'Hola, quiero cotizar:',
+			`• Prenda: ${data.get('prenda')}`,
+			`• Cantidad: ${data.get('cantidad')}`,
+		];
+		const fecha = data.get('fecha');
+		if (fecha) lines.push(`• Fecha deseada: ${fecha}`);
+		const detalles = String(data.get('detalles') ?? '').trim();
+		if (detalles) lines.push(`• Detalles: ${detalles}`);
+		const url = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`;
+		window.open(url, '_blank', 'noopener');
+	});
+</script>
+
+<style>
+	.contact {
+		--line-dark: rgba(251, 244, 248, 0.2);
+		background: var(--color-primary);
+		color: var(--cream);
+		padding: clamp(5rem, 11vw, 9rem) 0 2.5rem;
+		overflow: hidden;
+	}
+	.top {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 4rem;
+		align-items: end;
+	}
+	.title {
+		font-size: clamp(3rem, 7vw, 6rem);
+	}
+	.intro {
+		margin-top: 2rem;
+		max-width: 34rem;
+		opacity: 0.85;
+	}
+	.label {
+		color: #c9b9ff;
+	}
+	.quote {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.25rem;
+	}
+	.quote label {
+		display: grid;
+		gap: 0.4rem;
+	}
+	.quote .full {
+		grid-column: 1 / -1;
+	}
+	input,
+	select,
+	textarea {
+		font: inherit;
+		color: var(--cream);
+		background: rgba(251, 244, 248, 0.06);
+		border: 1px solid var(--line-dark);
+		padding: 0.8rem 0.9rem;
+		border-radius: 0;
+		color-scheme: dark;
+	}
+	select option {
+		color: var(--ink);
+		background: var(--cream);
+	}
+	input:focus,
+	select:focus,
+	textarea:focus {
+		outline: 2px solid var(--color-secondary);
+		outline-offset: 1px;
+	}
+	.contact :global(.footer-seam) {
+		margin-top: clamp(4rem, 8vw, 6rem);
+	}
+	.footer {
+		padding-top: 2.5rem;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 2rem;
+	}
+	.footer .label {
+		margin-bottom: 0.75rem;
+	}
+	.footer a {
+		text-decoration: none;
+	}
+	.footer a:hover {
+		color: #c9b9ff;
+	}
+	.wordmark {
+		margin-top: 4rem;
+		font-size: clamp(6rem, 25vw, 22rem);
+		line-height: 0.85;
+		letter-spacing: -0.04em;
+		background: var(--gradient-accent-x);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+	.legal {
+		margin-top: 2.5rem;
+		display: flex;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 1rem;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		opacity: 0.7;
+	}
+	@media (max-width: 860px) {
+		.top {
+			grid-template-columns: 1fr;
+		}
+		.footer {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 480px) {
+		.quote {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

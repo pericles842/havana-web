@@ -1,0 +1,46 @@
+---
+import { waLink } from '../data/site';
+---
+
+<a class="float" href={waLink()} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+	<svg viewBox="0 0 24 24" aria-hidden="true">
+		<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+		<path d="M9 9.5c.3 2 2.5 4.2 4.5 4.5l1-1.2 1.8.8-.4 1.6c-3.4.4-7.3-3.5-6.9-6.9l1.6-.4.8 1.8z" fill="currentColor"></path>
+	</svg>
+	<span>WhatsApp</span>
+</a>
+
+<style>
+	.float {
+		position: fixed;
+		right: clamp(1rem, 3vw, 2rem);
+		bottom: clamp(1rem, 3vw, 2rem);
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.85rem 1.3rem 0.85rem 1rem;
+		background: var(--gradient-accent-x);
+		color: #fff;
+		font-weight: 600;
+		text-decoration: none;
+		border-radius: 999px;
+		box-shadow: 0 14px 30px -12px rgba(126, 103, 229, 0.8);
+		transition: transform 0.2s;
+	}
+	.float:hover {
+		transform: translateY(-3px);
+	}
+	svg {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+	@media (max-width: 480px) {
+		span {
+			display: none;
+		}
+		.float {
+			padding: 1rem;
+		}
+	}
+</style>

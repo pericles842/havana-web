@@ -1,0 +1,152 @@
+---
+// Pieza de patrón dibujada a mano, con el mismo trazo que la hoja de estudios del home:
+// solo líneas (sin relleno), contorno incompleto, margen punteado, hilo de la tela y notas manuscritas.
+// Se dibuja desde cero cuando el paso entra en pantalla (.is-visible lo pone el script de Layout).
+interface Props {
+	d: string;
+	name: string;
+	id: string;
+}
+const { d, name, id } = Astro.props;
+const label = name.charAt(0) + name.slice(1).toLowerCase();
+const seed = [...id].reduce((n, c) => n + c.charCodeAt(0), 3);
+---
+
+<svg class="piece" viewBox="0 0 300 340" aria-hidden="true">
+	<defs>
+		<filter id={`hand-${id}`} x="-5%" y="-5%" width="110%" height="110%">
+			<feTurbulence type="fractalNoise" baseFrequency="0.024" numOctaves="2" seed={seed}></feTurbulence>
+			<feDisplacementMap in="SourceGraphic" scale="3"></feDisplacementMap>
+		</filter>
+		<pattern id={`hatch-${id}`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+			<line x1="0" y1="0" x2="0" y2="7" stroke="#d97fd0" stroke-width="1" stroke-opacity="0.7"></line>
+		</pattern>
+		<marker id={`arrow-${id}`} viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+			<path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+		</marker>
+		<clipPath id={`clip-${id}`}>
+			<path d={d}></path>
+		</clipPath>
+	</defs>
+
+	<g filter={`url(#hand-${id})`}>
+		<!-- sombreado a líneas en una esquina de la pieza -->
+		<rect class="hatch fade" style={`--t:1.2s; fill:url(#hatch-${id})`} x="180" y="230" width="140" height="130" clip-path={`url(#clip-${id})`}></rect>
+
+		<path class="outline draw slow" style="--da:0.58 0.05 0.3 1; --do:0.93" pathLength="1" d={d}></path>
+		<path class="outline thin draw" style="--t:0.4s; --da:0.36 0.14 0.3 1; --do:0.8" pathLength="1" d={d} transform="translate(3 2)"></path>
+		<path class="seam fade" style="--t:1s" d={d} transform="translate(150 170) scale(0.9) translate(-150 -170)"></path>
+
+		<path class="grain draw" style="--t:0.9s" pathLength="1" d="M118 80 V276" marker-start={`url(#arrow-${id})`} marker-end={`url(#arrow-${id})`}></path>
+		<path class="notch draw" style="--t:1.1s" pathLength="1" d="M40 160 H54 M246 200 H260"></path>
+
+		<path class="chalk draw" style="--t:1.3s" pathLength="1" d="M78 238 Q150 222 222 240"></path>
+		<path class="chalk draw" style="--t:1.6s" pathLength="1" d="M190 98 l10 10 M200 98 l-10 10"></path>
+
+		<g class="notes fade" style="--t:1.4s">
+			<text class="t1" x="134" y="152">{label}</text>
+			<text class="t2" x="136" y="176">cortar 2 en tela</text>
+			<text class="t3" x="136" y="198">havana</text>
+		</g>
+	</g>
+</svg>
+
+<style>
+	.piece {
+		width: 100%;
+		max-width: 19rem;
+		color: var(--ink);
+		overflow: visible;
+	}
+	path,
+	rect {
+		fill: none;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.hatch {
+		stroke: none;
+	}
+	.outline {
+		stroke: var(--ink);
+		stroke-width: 2.4;
+	}
+	.outline.thin {
+		stroke-width: 1;
+	}
+	.seam {
+		stroke: var(--ink);
+		stroke-opacity: 0.5;
+		stroke-dasharray: 5 4;
+		stroke-width: 1;
+	}
+	.grain,
+	.notch {
+		stroke: var(--ink);
+		stroke-width: 1.2;
+	}
+	.chalk {
+		stroke: var(--color-secondary);
+		stroke-width: 2.2;
+	}
+	text {
+		font-family: 'Caveat', cursive;
+		fill: var(--ink);
+	}
+	.t1 {
+		font-size: 30px;
+		font-weight: 500;
+	}
+	.t2 {
+		font-size: 19px;
+		fill-opacity: 0.8;
+	}
+	.t3 {
+		font-size: 19px;
+		fill: var(--color-secondary);
+	}
+
+	/* Dibujo de 0 al trazo final, solo cuando el paso entra en pantalla */
+	.draw {
+		stroke-dasharray: var(--da, 1 1);
+		stroke-dashoffset: 0;
+	}
+	:global(.js) .draw {
+		stroke-dashoffset: var(--do, 1);
+	}
+	:global(.js) .fade {
+		opacity: 0;
+	}
+	:global(.is-visible) .draw {
+		animation: draw 1.2s var(--t, 0s) cubic-bezier(0.45, 0, 0.25, 1) forwards;
+	}
+	:global(.is-visible) .draw.slow {
+		animation-duration: 2s;
+	}
+	:global(.is-visible) .fade {
+		animation: fade 0.8s var(--t, 0s) ease forwards;
+	}
+	@keyframes draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+	@keyframes fade {
+		to {
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(.js) .draw,
+		:global(.is-visible) .draw {
+			animation: none;
+			stroke-dashoffset: 0;
+		}
+		:global(.js) .fade,
+		:global(.is-visible) .fade {
+			animation: none;
+			opacity: 1;
+		}
+	}
+</style>

@@ -1,0 +1,90 @@
+---
+// Cinta métrica que se desplaza con los servicios del taller.
+const items = [
+	'Confección a medida',
+	'Producción por lote',
+	'Uniformes',
+	'Ropa de marca',
+	'Dotación',
+	'Arreglos y ajustes',
+	'Bordado',
+	'Luce, tu estilo',
+];
+---
+
+<div class="tape-wrap" aria-hidden="true">
+	<div class="tape">
+		<div class="track">
+			{
+				[0, 1].map(() => (
+					<div class="group">
+						{items.map((w, i) => (
+							<span class="cell">
+								<b>{(i + 1) * 10}</b>
+								<em>{w}</em>
+							</span>
+						))}
+					</div>
+				))
+			}
+		</div>
+	</div>
+</div>
+
+<style>
+	.tape-wrap {
+		overflow: hidden;
+		padding: 1.5rem 0;
+	}
+	.tape {
+		margin: 0 -2rem;
+		transform: rotate(-1.4deg);
+		background: var(--paper);
+		border-block: 1px solid var(--line);
+		box-shadow: 0 16px 30px -24px rgba(43, 45, 82, 0.6);
+		overflow: hidden;
+	}
+	.track {
+		display: flex;
+		width: max-content;
+		animation: tape 45s linear infinite;
+	}
+	.tape:hover .track {
+		animation-play-state: paused;
+	}
+	.group {
+		display: flex;
+		/* marcas de milímetros y centímetros */
+		background:
+			repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 10px) top left / 100% 9px no-repeat,
+			repeating-linear-gradient(90deg, var(--ink) 0 1.5px, transparent 1.5px 50px) top left / 100% 16px no-repeat;
+	}
+	.cell {
+		display: flex;
+		align-items: baseline;
+		gap: 0.9rem;
+		padding: 1.5rem 2.75rem 0.8rem 0.4rem;
+		white-space: nowrap;
+	}
+	b {
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: var(--color-secondary);
+	}
+	em {
+		font-family: var(--font-serif);
+		font-size: 1.45rem;
+		color: var(--ink);
+	}
+	@keyframes tape {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.track {
+			animation: none;
+		}
+	}
+</style>

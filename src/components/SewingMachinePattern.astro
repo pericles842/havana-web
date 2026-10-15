@@ -1,0 +1,224 @@
+---
+// Hoja de estudios al estilo de un cuaderno de inventor: la máquina de coser y sus piezas,
+// una pieza de patrón y notas manuscritas. Trazo a mano alzada (filtro de desplazamiento),
+// sin relleno de fondo, cortada por los bordes. Cada trazo se dibuja desde cero y queda estático.
+const body =
+	'M380 400 V235 Q380 210 355 210 H215 V300 Q215 312 203 312 H112 Q100 312 100 300 V140 Q100 110 130 110 H440 Q480 110 480 150 V400 Z';
+const base = 'M70 400 H530 Q542 400 542 412 V438 Q542 450 530 450 H70 Q58 450 58 438 V412 Q58 400 70 400 Z';
+const thread = 'M330 84 C 260 40, 170 60, 132 148 C 122 175, 150 200, 150 250 C 150 290, 156 320, 156 352';
+const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z';
+---
+
+<figure class="sheet" aria-hidden="true">
+	<svg viewBox="0 0 760 600">
+		<defs>
+			<filter id="hand" x="-5%" y="-5%" width="110%" height="110%">
+				<feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="7"></feTurbulence>
+				<feDisplacementMap in="SourceGraphic" scale="3.2"></feDisplacementMap>
+			</filter>
+			<pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+				<line x1="0" y1="0" x2="0" y2="7" stroke="#2b2d52" stroke-width="1" stroke-opacity="0.5"></line>
+			</pattern>
+			<pattern id="hatch-pink" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
+				<line x1="0" y1="0" x2="0" y2="6" stroke="#d97fd0" stroke-width="1" stroke-opacity="0.7"></line>
+			</pattern>
+			<marker id="s-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+				<path d="M0 0 L10 5 L0 10" fill="none" stroke="#7e67e5" stroke-width="1.5"></path>
+			</marker>
+		</defs>
+
+		<g filter="url(#hand)">
+			<!-- ───────── Estudio principal: la máquina ───────── -->
+			<g transform="translate(120 132) rotate(-6 300 260) scale(0.78)">
+				<path class="hatch fade" style="--t:2.4s" d="M444 150 L480 152 V398 H446 Z"></path>
+				<path class="hatch fade" style="--t:2.5s" d="M215 300 V214 H352 Q376 214 376 238 V398 H300"></path>
+
+				<path class="ink draw slow" style="--t:0.2s" pathLength="1" d={body}></path>
+				<path class="ink thin draw slow" style="--t:0.5s; --da:0.7 0.06 0.2 1; --do:0.96" pathLength="1" d={body} transform="translate(3 2)"></path>
+				<path class="ink draw" style="--t:0.4s; --da:0.62 0.08 0.24 1; --do:0.94" pathLength="1" d={base}></path>
+
+				<circle class="ink draw" style="--t:1s" pathLength="1" cx="500" cy="170" r="56"></circle>
+				<path class="ink thin draw" style="--t:1.2s" pathLength="1" d="M500 120 V220 M455 145 L545 195 M455 195 L545 145"></path>
+
+				<path class="ink draw" style="--t:1.4s" pathLength="1" d="M330 110 V56 M310 66 H350 M310 100 H350"></path>
+				<path class="thread fade" style="--t:1.8s" d={thread}></path>
+				<path class="ink draw" style="--t:1.6s" pathLength="1" d="M156 312 V392 M180 312 V384 H200"></path>
+				<path class="ink thin draw" style="--t:1.8s; --da:0.75 1; --do:0.75" pathLength="1" d="M-40 398 H330"></path>
+				<path class="sewn fade" style="--t:2s" d="M156 392 H-30"></path>
+
+				<g class="notes fade" style="--t:2.8s">
+					<text x="86" y="96">a</text>
+					<text x="560" y="140">b</text>
+					<text x="166" y="430">c</text>
+				</g>
+			</g>
+
+			<!-- ───────── Estudio del volante (se sale por la derecha) ───────── -->
+			<g transform="translate(650 120)">
+				<circle class="ink draw" style="--t:2s" pathLength="1" r="74"></circle>
+				<circle class="ink thin draw" style="--t:2.2s; --da:0.8 1; --do:0.8" pathLength="1" r="60"></circle>
+				<circle class="accent draw" style="--t:2.3s" pathLength="1" r="12"></circle>
+				<path class="ink thin draw" style="--t:2.4s" pathLength="1" d="M0 -60 V60 M-52 -30 L52 30 M-52 30 L52 -30"></path>
+				<circle class="construct draw" style="--t:2.5s; --da:0.6 1; --do:0.6" pathLength="1" r="100"></circle>
+				<path class="measure draw" style="--t:2.6s" pathLength="1" d="M-74 92 H74" marker-start="url(#s-arrow)" marker-end="url(#s-arrow)"></path>
+			</g>
+			<path class="construct draw" style="--t:2.2s" pathLength="1" d="M505 255 Q560 190 578 150"></path>
+
+			<!-- ───────── Estudio de la aguja ───────── -->
+			<g transform="translate(640 300) rotate(14)">
+				<path class="ink draw" style="--t:2.6s" pathLength="1" d="M-4 0 V200 L0 228 L4 200 V0 Z"></path>
+				<ellipse class="ink thin draw" style="--t:2.9s" pathLength="1" cx="0" cy="186" rx="1.8" ry="7"></ellipse>
+				<path class="thread fade" style="--t:3s" d="M-60 150 C -20 160, -8 186, 0 186 C 14 186, 40 210, 70 260"></path>
+				<path class="measure draw" style="--t:3.1s" pathLength="1" d="M24 0 V200" marker-start="url(#s-arrow)" marker-end="url(#s-arrow)"></path>
+			</g>
+
+			<!-- ───────── Estudio del carrete ───────── -->
+			<g transform="translate(70 70) rotate(-8)">
+				<ellipse class="ink draw" style="--t:2.8s" pathLength="1" cx="0" cy="0" rx="34" ry="10"></ellipse>
+				<path class="ink draw" style="--t:2.9s" pathLength="1" d="M-26 4 V70 M26 4 V70"></path>
+				<ellipse class="ink draw" style="--t:3s; --da:0.55 1; --do:0.55" pathLength="1" cx="0" cy="74" rx="34" ry="10"></ellipse>
+				<path class="hatch-pink fade" style="--t:3.1s" d="M-26 8 H26 V68 H-26 Z"></path>
+			</g>
+
+			<!-- ───────── Pieza de patrón (a la izquierda de la máquina) ───────── -->
+			<g transform="translate(-6 150) rotate(-10 100 150) scale(0.78)">
+				<path class="ink draw slow" style="--t:3s" pathLength="1" d={bodice}></path>
+				<path class="seam fade" style="--t:3.6s" d={bodice} transform="translate(105 150) scale(0.9) translate(-105 -150)"></path>
+				<path class="measure draw" style="--t:3.4s" pathLength="1" d="M96 80 V220" marker-start="url(#s-arrow)" marker-end="url(#s-arrow)"></path>
+				<path class="ink thin draw" style="--t:3.6s" pathLength="1" d="M18 160 H30 M180 160 H192 M80 30 V42"></path>
+			</g>
+
+			<!-- ───────── Notas manuscritas ───────── -->
+			<g class="notes fade" style="--t:3.2s">
+				<text x="250" y="66">la puntada nace donde</text>
+				<text x="262" y="90">la aguja encuentra la tela —</text>
+				<text x="560" y="250" class="small">volante · ø 11 cm</text>
+				<text x="676" y="300" class="small">aguja 90/14</text>
+				<text x="606" y="560" class="small">ojo ↑</text>
+				<text x="120" y="160" class="small">carrete</text>
+				<text x="4" y="388" class="small">delantero · cortar 2</text>
+				<text x="16" y="410" class="small accent-text">+1 cm de margen</text>
+				<text x="400" y="506" class="small">a · b · c — medir dos veces,</text>
+				<text x="412" y="528" class="small">cortar una.</text>
+			</g>
+			<!-- nota en escritura especular, como en los cuadernos -->
+			<text class="notes fade mirror" style="--t:3.4s" transform="translate(470 150) scale(-1 1)" x="0" y="0">luce tu estilo</text>
+		</g>
+	</svg>
+</figure>
+
+<style>
+	.sheet {
+		margin: 0;
+		width: 100%;
+	}
+	svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		/* la hoja se desvanece hacia abajo y a la izquierda */
+		mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+	}
+	path,
+	circle,
+	ellipse {
+		fill: none;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.ink {
+		stroke: var(--ink);
+		stroke-width: 2.2;
+	}
+	.ink.thin {
+		stroke-width: 1;
+	}
+	.accent {
+		stroke: var(--color-secondary);
+		stroke-width: 2.4;
+	}
+	.construct {
+		stroke: var(--color-secondary);
+		stroke-width: 0.9;
+		stroke-opacity: 0.5;
+	}
+	.measure {
+		stroke: var(--color-secondary);
+		stroke-width: 1;
+	}
+	.thread {
+		stroke: var(--color-secondary);
+		stroke-width: 1.3;
+		stroke-dasharray: 3 4;
+	}
+	.sewn {
+		stroke: var(--color-secondary);
+		stroke-width: 2.6;
+		stroke-dasharray: 9 7;
+	}
+	.seam {
+		stroke: var(--ink);
+		stroke-opacity: 0.5;
+		stroke-width: 1;
+		stroke-dasharray: 5 4;
+	}
+	.hatch {
+		fill: url(#hatch);
+		stroke: none;
+	}
+	.hatch-pink {
+		fill: url(#hatch-pink);
+		stroke: none;
+	}
+	.notes,
+	.notes text {
+		font-family: 'Caveat', cursive;
+		font-size: 25px;
+		fill: var(--ink);
+		fill-opacity: 0.8;
+	}
+	.notes .small {
+		font-size: 20px;
+	}
+	.notes .accent-text {
+		fill: var(--color-secondary);
+		fill-opacity: 1;
+	}
+	.mirror {
+		font-size: 30px;
+		fill: #d97fd0;
+	}
+
+	/* Dibujo de 0 al trazo final (completo o con huecos) */
+	.draw {
+		stroke-dasharray: var(--da, 1 1);
+		stroke-dashoffset: var(--do, 1);
+		animation: draw 1.2s var(--t, 0s) cubic-bezier(0.45, 0, 0.25, 1) forwards;
+	}
+	.draw.slow {
+		animation-duration: 2.2s;
+	}
+	.fade {
+		opacity: 0;
+		animation: fade 0.9s var(--t, 0s) ease forwards;
+	}
+	@keyframes draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+	@keyframes fade {
+		to {
+			opacity: 1;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.draw,
+		.fade {
+			animation: none;
+			stroke-dashoffset: 0;
+			opacity: 1;
+		}
+	}
+</style>
