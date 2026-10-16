@@ -1,6 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import { portfolio, instagramLink, site } from '../data/site';
+
+// Pieza de patrón grande para el fondo (un delantero)
+const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z';
 ---
 
 <section id="portafolio" class="section band">
@@ -13,24 +16,66 @@ import { portfolio, instagramLink, site } from '../data/site';
 			<a class="link-dashed" href={instagramLink} target="_blank" rel="noopener">Más en Instagram @{site.instagram}</a>
 		</div>
 
-		<ul class="gallery">
-			{
-				portfolio.map((p, i) => (
-					<li class:list={['tile', p.size]} data-reveal style={`--d:${(i % 3) * 0.1}s`}>
-						<figure>
-							<div class="photo">
-								<Image src={p.photo} alt={p.alt} width={p.size === 'wide' ? 1200 : 800} />
-							</div>
-							<figcaption class="label">{p.caption}</figcaption>
-						</figure>
-					</li>
-				))
-			}
-		</ul>
+		<div class="stage">
+			<!-- Fondo abstracto detrás de las fotos: tijeras, hilos y una pieza de patrón, muy tenues.
+			     Solo asoma entre las fotos y en los márgenes. -->
+			<svg class="backdrop" viewBox="0 0 1440 1020" preserveAspectRatio="xMidYMid slice" aria-hidden="true" data-reveal>
+				<defs>
+					<filter id="hand-folio" x="-5%" y="-5%" width="110%" height="110%">
+						<feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11"></feTurbulence>
+						<feDisplacementMap in="SourceGraphic" scale="3"></feDisplacementMap>
+					</filter>
+				</defs>
+
+				<g filter="url(#hand-folio)">
+					<!-- hilos largos que cruzan la sección -->
+					<path class="thread draw" style="--t:0.2s" pathLength="1" d="M-30 150 C 110 110, 170 300, 92 410 S 40 640, 300 712 S 760 650, 920 812 S 1240 1050, 1480 900"></path>
+					<path class="thread soft draw" style="--t:1s" pathLength="1" d="M-30 940 C 80 900, 140 990, 260 960 S 420 880, 520 1040"></path>
+
+					<!-- tijeras grandes en el margen derecho, abiertas -->
+					<g class="scissors" transform="translate(1210 120) rotate(62 120 120) scale(2.2)">
+						<path class="ink draw" style="--t:0.4s" pathLength="1" d="M150 16 L154 22 L84 64 L76 56 Z"></path>
+						<path class="ink draw" style="--t:0.6s" pathLength="1" d="M150 108 L154 102 L84 60 L76 68 Z"></path>
+						<path class="ink draw" style="--t:0.8s" pathLength="1" d="M80 62 L46 82 M80 62 L46 42"></path>
+						<ellipse class="ink draw" style="--t:1s" pathLength="1" cx="30" cy="92" rx="21" ry="13" transform="rotate(-30 30 92)"></ellipse>
+						<ellipse class="ink draw" style="--t:1.2s" pathLength="1" cx="30" cy="32" rx="21" ry="13" transform="rotate(30 30 32)"></ellipse>
+					</g>
+					<!-- línea de corte que sale de las tijeras -->
+					<path class="cut fade" style="--t:1.6s" d="M1262 380 L1150 520"></path>
+
+					<!-- pieza de patrón grande abajo a la izquierda -->
+					<g transform="translate(-275 690) rotate(-22 100 150) scale(1.9)">
+						<path class="pink draw" style="--t:0.8s" pathLength="1" d={bodice}></path>
+						<path class="seam fade" style="--t:1.8s" d={bodice} transform="translate(105 150) scale(0.9) translate(-105 -150)"></path>
+					</g>
+
+					<!-- marcas de registro -->
+					<path class="mark fade" style="--t:2s" d="M70 70 h18 M79 61 v18 M1370 960 h18 M1379 951 v18 M700 990 h18 M709 981 v18"></path>
+				</g>
+			</svg>
+
+			<ul class="gallery">
+				{
+					portfolio.map((p, i) => (
+						<li class:list={['tile', p.size]} data-reveal style={`--d:${(i % 3) * 0.1}s`}>
+							<figure>
+								<div class="photo">
+									<Image src={p.photo} alt={p.alt} width={p.size === 'wide' ? 1200 : 800} />
+								</div>
+								<figcaption class="label">{p.caption}</figcaption>
+							</figure>
+						</li>
+					))
+				}
+			</ul>
+		</div>
 	</div>
 </section>
 
 <style>
+	#portafolio {
+		overflow: clip;
+	}
 	.head {
 		display: flex;
 		justify-content: space-between;
@@ -43,6 +88,107 @@ import { portfolio, instagramLink, site } from '../data/site';
 		margin-top: 1.25rem;
 		max-width: 44rem;
 	}
+
+	/* Capa de fondo: ocupa todo el ancho de la sección, detrás de la galería */
+	.stage {
+		position: relative;
+		isolation: isolate;
+	}
+	.backdrop {
+		position: absolute;
+		z-index: -1;
+		top: -5rem;
+		bottom: -4rem;
+		left: 50%;
+		width: 100vw;
+		height: calc(100% + 9rem);
+		transform: translateX(-50%);
+		pointer-events: none;
+		overflow: visible;
+	}
+	.backdrop :global(path),
+	.backdrop :global(ellipse) {
+		fill: none;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.thread {
+		stroke: var(--color-secondary);
+		stroke-width: 1.6;
+		stroke-opacity: 0.4;
+	}
+	.thread.soft {
+		stroke: #d97fd0;
+		stroke-opacity: 0.45;
+	}
+	.ink {
+		stroke: var(--ink);
+		stroke-width: 1.1;
+		stroke-opacity: 0.18;
+	}
+	.cut {
+		stroke: var(--color-secondary);
+		stroke-width: 1.4;
+		stroke-opacity: 0.35;
+		stroke-dasharray: 10 9;
+	}
+	.pink {
+		stroke: #d97fd0;
+		stroke-width: 1;
+		stroke-opacity: 0.5;
+	}
+	.seam {
+		stroke: #d97fd0;
+		stroke-width: 0.8;
+		stroke-opacity: 0.45;
+		stroke-dasharray: 4 4;
+	}
+	.mark {
+		stroke: #d97fd0;
+		stroke-width: 1.2;
+		stroke-opacity: 0.6;
+	}
+
+	/* Se dibuja lento y una sola vez al entrar en pantalla */
+	.draw {
+		stroke-dasharray: 1 1.5;
+		stroke-dashoffset: 0;
+	}
+	:global(.js) .backdrop .draw {
+		stroke-dashoffset: 1;
+	}
+	:global(.js) .backdrop .fade {
+		opacity: 0;
+	}
+	:global(.js) .backdrop.is-visible .draw {
+		animation: draw 3.2s var(--t, 0s) cubic-bezier(0.45, 0, 0.25, 1) forwards;
+	}
+	:global(.js) .backdrop.is-visible .fade {
+		animation: fade 1.2s var(--t, 0s) ease forwards;
+	}
+	@keyframes draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+	@keyframes fade {
+		to {
+			opacity: 1;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		:global(.js) .backdrop .draw,
+		:global(.js) .backdrop.is-visible .draw {
+			animation: none;
+			stroke-dashoffset: 0;
+		}
+		:global(.js) .backdrop .fade,
+		:global(.js) .backdrop.is-visible .fade {
+			animation: none;
+			opacity: 1;
+		}
+	}
+
 	.gallery {
 		list-style: none;
 		margin: 0;
