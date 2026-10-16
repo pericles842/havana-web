@@ -17,7 +17,18 @@ import { waLink } from '../data/site';
 			<SewingMachinePattern />
 		</div>
 
-		<h1 class="display title">Luce,<br /><em>tu estilo.</em></h1>
+		<h1 class="display title">
+			<!-- versión final a color: aparece cuando termina el dibujo de la máquina -->
+			<span class="final">Luce,<br /><em>tu estilo.</em></span>
+			<!-- boceto a lápiz encima: se escribe primero y luego se desvanece -->
+			<span class="sketch" aria-hidden="true"><span class="l1">Luce,</span><br /><em>tu estilo.</em></span>
+			<svg class="pencil-defs" width="0" height="0" aria-hidden="true">
+				<filter id="pencil" x="-5%" y="-10%" width="110%" height="120%">
+					<feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="5"></feTurbulence>
+					<feDisplacementMap in="SourceGraphic" scale="4"></feDisplacementMap>
+				</filter>
+			</svg>
+		</h1>
 
 		<div class="cta">
 			<a class="btn" href={waLink()} target="_blank" rel="noopener">Cotizar por WhatsApp</a>
@@ -59,7 +70,9 @@ import { waLink } from '../data/site';
 	.title {
 		grid-area: title;
 		align-self: end;
+		position: relative;
 		font-size: clamp(4.5rem, 8.2vw, 8.5rem);
+		line-height: 0.86;
 		margin-top: 3rem;
 		white-space: nowrap;
 	}
@@ -68,22 +81,57 @@ import { waLink } from '../data/site';
 		position: relative;
 		margin-left: 0.4em;
 	}
-	/* pespunte que subraya "tu estilo" */
-	.title em::after {
-		content: '';
+	.pencil-defs {
 		position: absolute;
-		left: 0.05em;
-		right: 0.1em;
-		bottom: 0.02em;
-		height: 4px;
-		background: repeating-linear-gradient(90deg, #d97fd0 0 16px, transparent 16px 26px);
-		transform: scaleX(0);
-		transform-origin: left;
-		animation: sew-line 1.8s 0.6s cubic-bezier(0.45, 0, 0.25, 1) forwards;
 	}
-	@keyframes sew-line {
+
+	/* 1. Boceto a lápiz: solo contorno tembloroso, se escribe de izquierda a derecha */
+	.sketch {
+		position: absolute;
+		inset: 0;
+		color: transparent;
+		-webkit-text-stroke: 1.1px rgba(43, 45, 82, 0.75);
+		filter: url(#pencil);
+		pointer-events: none;
+		animation: sketch-out 0.9s 4.3s ease forwards;
+	}
+	.sketch em {
+		background: none;
+		-webkit-text-stroke-color: rgba(126, 103, 229, 0.85);
+	}
+	.sketch .l1,
+	.sketch em {
+		display: inline-block;
+		clip-path: inset(-0.2em 100% -0.3em -0.1em);
+		animation: write 1.6s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+	}
+	.sketch .l1 {
+		animation-delay: 0.3s;
+	}
+	.sketch em {
+		animation-delay: 1.7s;
+		animation-duration: 1.9s;
+	}
+	@keyframes write {
 		to {
-			transform: scaleX(1);
+			clip-path: inset(-0.2em -0.2em -0.3em -0.1em);
+		}
+	}
+	@keyframes sketch-out {
+		to {
+			opacity: 0;
+		}
+	}
+
+	/* 2. Versión final a color: entra al terminar el dibujo */
+	.final {
+		display: block;
+		opacity: 0;
+		animation: ink-in 1s 4.1s ease forwards;
+	}
+	@keyframes ink-in {
+		to {
+			opacity: 1;
 		}
 	}
 	.cta {
@@ -95,9 +143,12 @@ import { waLink } from '../data/site';
 		margin-top: 3rem;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.title em::after {
+		.final {
 			animation: none;
-			transform: none;
+			opacity: 1;
+		}
+		.sketch {
+			display: none;
 		}
 	}
 	@media (max-width: 860px) {

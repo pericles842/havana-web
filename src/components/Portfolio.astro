@@ -1,6 +1,11 @@
 ---
-import { Image } from 'astro:assets';
-import { portfolio, instagramLink, site } from '../data/site';
+import SketchHeading from './SketchHeading.astro';
+import { Image, getImage } from 'astro:assets';
+import { portfolio, instagramLink, site, waLink } from '../data/site';
+
+// versión grande de cada foto para el visor
+const large = await Promise.all(portfolio.map((p) => getImage({ src: p.photo, width: 1800 })));
+const num = (i: number) => String(i + 1).padStart(2, '0');
 
 // Pieza de patrón grande para el fondo (un delantero)
 const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z';
@@ -11,7 +16,10 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 		<div class="head" data-reveal>
 			<div>
 				<p class="label hand">Portafolio</p>
-				<h2 class="display h2">Trabajos que ya salieron del taller.</h2>
+				<SketchHeading>Trabajos que ya salieron del taller.</SketchHeading>
+				<p class="lead muted hand intro">
+					Cada prenda pasa por patrón, muestra y revisión antes de salir. Toca una foto para verla de cerca.
+				</p>
 			</div>
 			<a class="link-dashed" href={instagramLink} target="_blank" rel="noopener">Más en Instagram @{site.instagram}</a>
 		</div>
@@ -29,8 +37,7 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 
 				<g filter="url(#hand-folio)">
 					<!-- hilos largos que cruzan la sección -->
-					<path class="thread draw" style="--t:0.2s" pathLength="1" d="M-30 150 C 110 110, 170 300, 92 410 S 40 640, 300 712 S 760 650, 920 812 S 1240 1050, 1480 900"></path>
-					<path class="thread soft draw" style="--t:1s" pathLength="1" d="M-30 940 C 80 900, 140 990, 260 960 S 420 880, 520 1040"></path>
+					<path class="thread draw" style="--t:0.2s" pathLength="1" d="M-30 150 C 110 110, 170 300, 92 410 S 40 640, 300 712 S 760 650, 900 760"></path>
 
 					<!-- tijeras grandes en el margen derecho, abiertas -->
 					<g class="scissors" transform="translate(1210 120) rotate(62 120 120) scale(2.2)">
@@ -59,18 +66,98 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 					portfolio.map((p, i) => (
 						<li class:list={['tile', p.size]} data-reveal style={`--d:${(i % 3) * 0.1}s`}>
 							<figure>
-								<div class="photo">
+								<button
+									class="photo"
+									type="button"
+									data-open={i}
+									data-src={large[i].src}
+									data-alt={p.alt}
+									data-caption={`No. ${num(i)} · ${p.caption}`}
+									aria-label={`Ver en grande: ${p.caption}`}
+								>
 									<Image src={p.photo} alt={p.alt} width={p.size === 'wide' ? 1200 : 800} />
-								</div>
-								<figcaption class="label">{p.caption}</figcaption>
+									<span class="zoom" aria-hidden="true">+</span>
+								</button>
+								<figcaption>
+									<span class="no">No. {num(i)}</span>
+									<span class="label">{p.caption}</span>
+								</figcaption>
 							</figure>
 						</li>
 					))
 				}
 			</ul>
 		</div>
+
+		<!-- Llamada a cotizar -->
+		<div class="cta" data-reveal>
+			<p class="display cta-text">¿Tienes algo parecido en <em>mente?</em></p>
+			<a class="btn" href={waLink('Hola, vi su portafolio y quiero cotizar un proyecto parecido...')} target="_blank" rel="noopener">
+				Cotizar un proyecto
+			</a>
+		</div>
 	</div>
+
+	<!-- Visor de fotos -->
+	<dialog class="lightbox" aria-label="Foto del portafolio">
+		<button class="lb-close" type="button" aria-label="Cerrar">×</button>
+		<button class="lb-nav lb-prev" type="button" aria-label="Foto anterior">‹</button>
+		<figure class="lb-figure">
+			<img class="lb-img" alt="" />
+			<figcaption class="lb-caption label"></figcaption>
+		</figure>
+		<button class="lb-nav lb-next" type="button" aria-label="Foto siguiente">›</button>
+	</dialog>
 </section>
+
+<script>
+	// Visor: abre la foto en grande; flechas o teclado para pasar; Esc o clic fuera para cerrar.
+	type LenisLike = { stop(): void; start(): void };
+	const dialog = document.querySelector<HTMLDialogElement>('#portafolio .lightbox');
+	const tiles = [...document.querySelectorAll<HTMLButtonElement>('#portafolio [data-open]')];
+
+	if (dialog && tiles.length) {
+		const img = dialog.querySelector<HTMLImageElement>('.lb-img')!;
+		const caption = dialog.querySelector<HTMLElement>('.lb-caption')!;
+		const lenis = () => (window as Window & { lenis?: LenisLike }).lenis;
+		let current = 0;
+		let opener: HTMLButtonElement | null = null;
+
+		const show = (i: number) => {
+			current = (i + tiles.length) % tiles.length;
+			const t = tiles[current];
+			img.classList.remove('in');
+			img.src = t.dataset.src!;
+			img.alt = t.dataset.alt ?? '';
+			caption.textContent = t.dataset.caption ?? '';
+			img.decode().catch(() => {}).finally(() => img.classList.add('in'));
+		};
+
+		tiles.forEach((t, i) =>
+			t.addEventListener('click', () => {
+				opener = t;
+				show(i);
+				dialog.showModal();
+				lenis()?.stop();
+			}),
+		);
+
+		dialog.querySelector('.lb-prev')!.addEventListener('click', () => show(current - 1));
+		dialog.querySelector('.lb-next')!.addEventListener('click', () => show(current + 1));
+		dialog.querySelector('.lb-close')!.addEventListener('click', () => dialog.close());
+		dialog.addEventListener('click', (e) => {
+			if (e.target === dialog) dialog.close(); // clic en el fondo
+		});
+		dialog.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowLeft') show(current - 1);
+			if (e.key === 'ArrowRight') show(current + 1);
+		});
+		dialog.addEventListener('close', () => {
+			lenis()?.start();
+			opener?.focus();
+		});
+	}
+</script>
 
 <style>
 	#portafolio {
@@ -84,9 +171,13 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 		flex-wrap: wrap;
 		margin-bottom: 4rem;
 	}
-	.head .h2 {
+	.head :global(.h2) {
 		margin-top: 1.25rem;
 		max-width: 44rem;
+	}
+	.intro {
+		margin-top: 1.25rem;
+		max-width: 34rem;
 	}
 
 	/* Capa de fondo: ocupa todo el ancho de la sección, detrás de la galería */
@@ -98,13 +189,13 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 		position: absolute;
 		z-index: -1;
 		top: -5rem;
-		bottom: -4rem;
 		left: 50%;
 		width: 100vw;
-		height: calc(100% + 9rem);
+		height: calc(100% + 5rem);
 		transform: translateX(-50%);
 		pointer-events: none;
-		overflow: visible;
+		overflow: hidden;
+		mask-image: linear-gradient(to bottom, #000 72%, transparent 97%);
 	}
 	.backdrop :global(path),
 	.backdrop :global(ellipse) {
@@ -214,8 +305,43 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 	}
 	.photo {
 		position: relative;
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: 0;
 		overflow: hidden;
 		background: var(--paper);
+		cursor: zoom-in;
+	}
+	.photo:focus-visible {
+		outline: 2px solid var(--color-secondary);
+		outline-offset: 3px;
+	}
+	/* botón "+" que aparece al pasar el cursor */
+	.zoom {
+		position: absolute;
+		z-index: 1;
+		right: 0.9rem;
+		bottom: 0.9rem;
+		display: grid;
+		place-items: center;
+		width: 2.4rem;
+		height: 2.4rem;
+		border-radius: 50%;
+		background: var(--bg);
+		color: var(--ink);
+		font-size: 1.4rem;
+		line-height: 1;
+		opacity: 0;
+		transform: scale(0.7);
+		transition:
+			opacity 0.3s,
+			transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.tile:hover .zoom,
+	.photo:focus-visible .zoom {
+		opacity: 1;
+		transform: none;
 	}
 	.photo :global(img) {
 		width: 100%;
@@ -243,13 +369,137 @@ const bodice = 'M40 40 L120 28 Q132 70 176 78 L188 250 Q110 268 44 258 L22 140 Z
 	.tile:hover .photo::after {
 		clip-path: inset(0 0 0 0);
 	}
+	/* pie de foto como ficha de patrón: número + descripción */
 	figcaption {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
 		font-size: 0.85rem;
 	}
+	.no {
+		flex: none;
+		font-family: 'Caveat', cursive;
+		font-size: 1.15rem;
+		font-size-adjust: 0.5;
+		color: var(--ink);
+		opacity: 0.55;
+	}
+
+	/* Llamada a cotizar */
+	.cta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 1.5rem 2rem;
+		margin-top: clamp(3.5rem, 7vw, 5.5rem);
+		padding-top: 2.25rem;
+		border-top: 1px dashed var(--line);
+	}
+	.cta-text {
+		font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+	}
+
+	/* Visor de fotos */
+	.lightbox {
+		width: 100vw;
+		height: 100vh;
+		max-width: none;
+		max-height: none;
+		margin: 0;
+		padding: clamp(1rem, 4vw, 3rem);
+		border: 0;
+		background: transparent;
+		display: none;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 1rem;
+		color: var(--cream);
+	}
+	.lightbox[open] {
+		display: grid;
+	}
+	.lightbox::backdrop {
+		background: rgba(43, 45, 82, 0.88);
+		backdrop-filter: blur(6px);
+	}
+	.lb-figure {
+		margin: 0;
+		height: 100%;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr) auto;
+		justify-items: center;
+		gap: 0.9rem;
+	}
+	.lb-img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		align-self: center;
+		opacity: 0;
+		transform: scale(0.98);
+		transition:
+			opacity 0.35s ease,
+			transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.lb-img.in {
+		opacity: 1;
+		transform: none;
+	}
+	.lb-caption {
+		color: #c9b9ff;
+	}
+	.lb-nav,
+	.lb-close {
+		border: 1px solid rgba(251, 244, 248, 0.35);
+		background: transparent;
+		color: var(--cream);
+		border-radius: 50%;
+		width: 3rem;
+		height: 3rem;
+		font-size: 1.7rem;
+		line-height: 1;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+	.lb-nav:hover,
+	.lb-close:hover {
+		background: rgba(251, 244, 248, 0.15);
+	}
+	.lb-close {
+		position: absolute;
+		top: clamp(1rem, 3vw, 2rem);
+		right: clamp(1rem, 3vw, 2rem);
+	}
+
 	@media (max-width: 760px) {
 		.gallery {
 			grid-template-columns: 1fr 1fr;
 			grid-auto-rows: 11rem;
+		}
+		figcaption {
+			flex-direction: column;
+			gap: 0.1rem;
+		}
+		.lightbox {
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: minmax(0, 1fr) auto;
+		}
+		.lb-figure {
+			grid-column: 1 / -1;
+			grid-row: 1;
+		}
+		.lb-prev {
+			grid-row: 2;
+			justify-self: end;
+		}
+		.lb-next {
+			grid-row: 2;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.lb-img {
+			transition: none;
 		}
 	}
 </style>

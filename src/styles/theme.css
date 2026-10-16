@@ -231,3 +231,69 @@ a {
 	   igualamos la altura de sus minúsculas para que se vea del mismo tamaño */
 	font-size-adjust: 0.5;
 }
+
+/* Títulos de sección con efecto de lápiz: primero un boceto a contorno que se escribe, luego el título final.
+   Mantienen el color y tamaño del título normal; solo se añade la transición. */
+.sk {
+	position: relative;
+}
+.sk-final,
+.sk-pencil {
+	display: block;
+}
+.sk-pencil {
+	position: absolute;
+	inset: 0;
+	color: transparent;
+	-webkit-text-stroke: 1px rgba(43, 45, 82, 0.8);
+	filter: url(#pencil-sk);
+	pointer-events: none;
+	opacity: 0;
+}
+.js .sk-final {
+	opacity: 0;
+}
+/* se escribe con un barrido en diagonal de izquierda a derecha */
+.js .sk.is-visible .sk-pencil {
+	opacity: 1;
+	-webkit-mask-image: linear-gradient(104deg, #000 45%, transparent 55%);
+	mask-image: linear-gradient(104deg, #000 45%, transparent 55%);
+	-webkit-mask-size: 260% 100%;
+	mask-size: 260% 100%;
+	-webkit-mask-position: 100% 0;
+	mask-position: 100% 0;
+	animation:
+		sk-write 1.7s cubic-bezier(0.45, 0, 0.25, 1) forwards,
+		sk-out 0.8s 1.9s ease forwards;
+}
+.js .sk.is-visible .sk-final {
+	animation: sk-in 0.9s 1.8s ease forwards;
+}
+@keyframes sk-write {
+	to {
+		-webkit-mask-position: 0 0;
+		mask-position: 0 0;
+	}
+}
+@keyframes sk-out {
+	to {
+		opacity: 0;
+	}
+}
+@keyframes sk-in {
+	to {
+		opacity: 1;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.js .sk-final {
+		opacity: 1;
+	}
+	.js .sk.is-visible .sk-final {
+		animation: none;
+	}
+	.sk-pencil,
+	.js .sk.is-visible .sk-pencil {
+		display: none;
+	}
+}

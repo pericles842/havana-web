@@ -1,11 +1,48 @@
 ---
 import '../styles/theme.css';
+import { site, instagramLink } from '../data/site';
 
 interface Props {
 	title: string;
 	description?: string;
+	image?: string;
 }
-const { title, description = 'Havana, taller de costura: confección a medida, producción por lote y arreglos.' } = Astro.props;
+const {
+	title,
+	description = 'Taller de costura en Los Dos Caminos, Caracas: confección a medida, producción por lote (uniformes, ropa de marca y dotación) y arreglos. Cotiza por WhatsApp.',
+	image = '/og-image.png',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const imageUrl = new URL(image, site.url).href;
+
+// Datos estructurados para Google: negocio local. Solo con datos confirmados.
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'LocalBusiness',
+	'@id': `${site.url}/#taller`,
+	name: site.name,
+	description,
+	slogan: site.slogan,
+	url: site.url,
+	image: imageUrl,
+	logo: new URL('/favicon.png', site.url).href,
+	telephone: site.phone,
+	address: {
+		'@type': 'PostalAddress',
+		streetAddress: site.address[0],
+		addressLocality: 'Caracas',
+		addressCountry: 'VE',
+	},
+	areaServed: { '@type': 'Country', name: 'Venezuela' },
+	sameAs: [instagramLink],
+	makesOffer: [
+		'Confección a medida',
+		'Producción por lote',
+		'Arreglos y ajustes',
+		'Bordado y estampado',
+	].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+};
 ---
 
 <!doctype html>
@@ -13,24 +50,53 @@ const { title, description = 'Havana, taller de costura: confección a medida, p
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
 		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<meta name="robots" content="index, follow, max-image-preview:large" />
+
+		<!-- Al compartir el enlace (WhatsApp, Instagram, Facebook...) -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={site.name} />
+		<meta property="og:locale" content="es_VE" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Havana, taller de costura. Luce, tu estilo." />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={imageUrl} />
+
 		<link rel="icon" href="/favicon.ico" sizes="48x48" />
 		<link rel="icon" type="image/png" href="/favicon.png" sizes="512x512" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="sitemap" href="/sitemap-index.xml" />
 		<meta name="theme-color" content="#fbf4f8" />
 		<meta name="generator" content={Astro.generator} />
+
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
 			rel="stylesheet"
 			href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Courier+Prime:wght@400;700&family=Figtree:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap"
 		/>
-		<title>{title}</title>
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
 		<script is:inline>
 			document.documentElement.classList.add('js');
 		</script>
 	</head>
 	<body>
+		<!-- filtro de temblor a lápiz, compartido por los títulos de sección -->
+		<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+			<filter id="pencil-sk" x="-5%" y="-10%" width="110%" height="120%">
+				<feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="5"></feTurbulence>
+				<feDisplacementMap in="SourceGraphic" scale="3"></feDisplacementMap>
+			</filter>
+		</svg>
 		<slot />
 	</body>
 </html>
@@ -53,10 +119,11 @@ const { title, description = 'Havana, taller de costura: confección a medida, p
 			requestAnimationFrame(raf);
 		};
 		requestAnimationFrame(raf);
+		// accesible para pausar el scroll (p. ej. con el visor de fotos abierto)
+		(window as unknown as { lenis?: Lenis }).lenis = lenis;
 	}
 
 	// Apariciones al hacer scroll ([data-reveal]) y costuras que se cosen solas ([data-stitch])
-
 	function sew(svg: Element) {
 		if (reduce) {
 			svg.querySelectorAll('.mask-path').forEach((p) => p.setAttribute('stroke-dashoffset', '0'));
@@ -78,5 +145,5 @@ const { title, description = 'Havana, taller de costura: confección a medida, p
 		{ threshold: 0.2, rootMargin: '0px 0px -5% 0px' },
 	);
 
-	document.querySelectorAll('[data-reveal], [data-stitch]').forEach((el) => io.observe(el));
+	document.querySelectorAll('[data-reveal], [data-stitch], [data-sketch]').forEach((el) => io.observe(el));
 </script>

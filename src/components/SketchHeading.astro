@@ -1,0 +1,12 @@
+---
+// Título de sección que primero se "escribe" a lápiz (solo contorno tembloroso) y luego pasa a su versión
+// final, igual que el título del inicio pero sin degradado. Arranca cuando entra en pantalla (data-sketch).
+// El contenido se pinta dos veces: la capa final (la real, la que leen Google y los lectores de pantalla)
+// y la capa de lápiz (decorativa).
+// Los estilos están en theme.css (.sk) y el filtro de temblor en Layout.astro (#pencil-sk).
+---
+
+<h2 class="display h2 sk" data-sketch>
+	<span class="sk-final"><slot /></span>
+	<span class="sk-pencil" aria-hidden="true"><slot /></span>
+</h2>

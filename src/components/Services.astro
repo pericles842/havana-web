@@ -1,4 +1,5 @@
 ---
+import SketchHeading from './SketchHeading.astro';
 import { Image, getImage } from 'astro:assets';
 import { services } from '../data/site';
 
@@ -10,7 +11,7 @@ const zooms = await Promise.all(services.map((s) => getImage({ src: s.photo, wid
 	<div class="wrap">
 		<div class="head" data-reveal>
 			<div>
-				<h2 class="display h2">Lo que cosemos<br />en el taller.</h2>
+				<SketchHeading>Lo que cosemos<br />en el taller.</SketchHeading>
 				<p class="lead muted hand">Cuatro servicios para que tu marca, tu equipo o tu prenda se vean como tienen que verse.</p>
 			</div>
 			<a class="link-dashed" href="#portafolio">Ver trabajos</a>

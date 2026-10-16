@@ -18,14 +18,15 @@ export const photos = {
 };
 
 export const site = {
+	// TODO: dirección real de la web. Se usa en canonical, sitemap, Open Graph y datos estructurados.
+	url: 'https://tu-dominio.com',
 	name: 'Havana',
 	slogan: 'Luce, tu estilo',
-	whatsapp: '580000000000', // TODO: número real con código de país, sin + ni espacios
+	whatsapp: '584242081375', // código de país + número, sin + ni espacios
 	whatsappMessage: 'Hola, quiero cotizar...',
-	instagram: 'havana', // TODO: usuario real de Instagram
-	email: 'hola@havana.com', // TODO
-	phone: '+58 000 000 0000', // TODO
-	address: ['Dirección del taller', 'Ciudad'], // TODO
+	instagram: 'havana.ve',
+	phone: '+58 424-2081375',
+	address: ['Los Dos Caminos', 'Caracas, Venezuela'], // TODO: confirmar ciudad y añadir calle o referencia exacta
 	hours: ['Lunes a viernes', '9:00 a 18:00'], // TODO
 };
 
