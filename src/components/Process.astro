@@ -31,6 +31,18 @@ import { steps } from '../data/site';
 	</div>
 </section>
 
+<script>
+	// Cada carga de la página mezcla al azar qué patrones se dibujan de derecha a izquierda
+	// y cuáles de izquierda a derecha. Siempre hay al menos uno de cada.
+	const pieces = [...document.querySelectorAll<SVGElement>('#proceso .piece')];
+	const dirs = pieces.map((_, i) => i % 2 === 0);
+	for (let i = dirs.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[dirs[i], dirs[j]] = [dirs[j], dirs[i]];
+	}
+	pieces.forEach((piece, i) => piece.classList.toggle('rtl', dirs[i]));
+</script>
+
 <style>
 	.head {
 		max-width: 52rem;

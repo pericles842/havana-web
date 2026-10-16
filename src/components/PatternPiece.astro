@@ -33,8 +33,8 @@ const seed = [...id].reduce((n, c) => n + c.charCodeAt(0), 3);
 		<!-- sombreado a líneas en una esquina de la pieza -->
 		<rect class="hatch fade" style={`--t:1.2s; fill:url(#hatch-${id})`} x="180" y="230" width="140" height="130" clip-path={`url(#clip-${id})`}></rect>
 
-		<path class="outline draw slow" style="--da:0.58 0.05 0.3 1; --do:0.93" pathLength="1" d={d}></path>
-		<path class="outline thin draw" style="--t:0.4s; --da:0.36 0.14 0.3 1; --do:0.8" pathLength="1" d={d} transform="translate(3 2)"></path>
+		<path class="outline draw slow" style="--da:0.58 0.05 0.3 1.5; --do:0.93" pathLength="1" d={d}></path>
+		<path class="outline thin draw" style="--t:0.4s; --da:0.36 0.14 0.3 1.5; --do:0.8" pathLength="1" d={d} transform="translate(3 2)"></path>
 		<path class="seam fade" style="--t:1s" d={d} transform="translate(150 170) scale(0.9) translate(-150 -170)"></path>
 
 		<path class="grain draw" style="--t:0.9s" pathLength="1" d="M118 80 V276" marker-start={`url(#arrow-${id})`} marker-end={`url(#arrow-${id})`}></path>
@@ -108,11 +108,16 @@ const seed = [...id].reduce((n, c) => n + c.charCodeAt(0), 3);
 
 	/* Dibujo de 0 al trazo final, solo cuando el paso entra en pantalla */
 	.draw {
-		stroke-dasharray: var(--da, 1 1);
+		stroke-dasharray: var(--da, 1 1.5);
 		stroke-dashoffset: 0;
 	}
 	:global(.js) .draw {
 		stroke-dashoffset: var(--do, 1);
+	}
+	/* Pieza que se dibuja al revés (derecha → izquierda): el trazo se revela desde el final.
+	   El último hueco de cada --da mide 1.5 (más que el trazo, para dejar margen), así que -1 lo oculta todo igual que +1. */
+	:global(.js) .piece.rtl .draw {
+		stroke-dashoffset: -1;
 	}
 	:global(.js) .fade {
 		opacity: 0;
@@ -139,6 +144,7 @@ const seed = [...id].reduce((n, c) => n + c.charCodeAt(0), 3);
 
 	@media (prefers-reduced-motion: reduce) {
 		:global(.js) .draw,
+		:global(.js) .piece.rtl .draw,
 		:global(.is-visible) .draw {
 			animation: none;
 			stroke-dashoffset: 0;
