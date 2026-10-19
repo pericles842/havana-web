@@ -1,6 +1,6 @@
 ---
 import '../styles/theme.css';
-import { site, instagramLink } from '../data/site';
+import { site, instagramLink, faqs } from '../data/site';
 
 interface Props {
 	title: string;
@@ -34,7 +34,17 @@ const schema = {
 		addressLocality: 'Caracas',
 		addressCountry: 'VE',
 	},
-	areaServed: { '@type': 'Country', name: 'Venezuela' },
+	areaServed: [
+		{ '@type': 'City', name: 'Caracas' },
+		{ '@type': 'Country', name: 'Venezuela' },
+	],
+	openingHoursSpecification: {
+		'@type': 'OpeningHoursSpecification',
+		dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+		opens: '09:00',
+		closes: '18:00',
+	},
+	priceRange: '$$',
 	sameAs: [instagramLink],
 	makesOffer: [
 		'Confección a medida',
@@ -42,6 +52,17 @@ const schema = {
 		'Arreglos y ajustes',
 		'Bordado y estampado',
 	].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+};
+
+// Preguntas frecuentes: Google puede mostrarlas como desplegables en los resultados.
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: faqs.map((f) => ({
+		'@type': 'Question',
+		name: f.q,
+		acceptedAnswer: { '@type': 'Answer', text: f.a },
+	})),
 };
 ---
 
@@ -85,6 +106,10 @@ const schema = {
 			href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Courier+Prime:wght@400;700&family=Figtree:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap"
 		/>
 		<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+		<meta name="geo.region" content="VE-A" />
+		<meta name="geo.placename" content="Los Dos Caminos, Caracas" />
+		<link rel="alternate" hreflang="es" href={canonical} />
 		<script is:inline>
 			document.documentElement.classList.add('js');
 		</script>
